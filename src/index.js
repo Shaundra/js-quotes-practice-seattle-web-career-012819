@@ -18,8 +18,8 @@ function createElmt(elmt, parent, className, callback = () => {}) {
 
 function addQuote(quote) {
   let quoteList = document.getElementById('quote-list');
-  let li = createElmt('li', quoteList, 'quote-card');
-  // li.setAttribute('id', quote.id)
+  let li = createElmt('li', quoteList, 'quote-card',
+    (li) => li.setAttribute('quote-id', quote.id));
 
   let blockQuote = createElmt('blockquote', li, 'blockquote')
 
@@ -80,5 +80,37 @@ quoteForm.addEventListener('submit', (e) => {
   createQuote(e);
 })
 
+function sortQuotes(parentNode) {
+  let quotes = Array.from(parentNode.querySelectorAll('li'))
+  let firstQuoteID = quotes[0].attributes['quote-id'].value
+  let secondQuoteID = quotes[1].attributes['quote-id'].value
+
+  if (firstQuoteID > secondQuoteID) {
+    quotes = quotes.sort((a, b) => {
+      let aId = parseInt(a.attributes['quote-id'].value);
+      let bId = parseInt(b.attributes['quote-id'].value);
+
+      return aId - bId;
+    })
+  } else {
+    quotes = quotes.sort((a, b) => {
+      let authorA = a.querySelector('.blockquote-footer').textContent;
+      let authorB = b.querySelector('.blockquote-footer').textContent;
+
+      if (authorA < authorB) {return -1}
+        else if (authorA > authorB) {return 1}
+        else {return 0}
+    })
+  }
+
+  quotes.forEach(function(quote) {
+    parentNode.appendChild(quote);
+  })
+}
+// Add Sort Button
+let quoteList = document.getElementById('quote-list')
+let sortButton = createElmt('button', quoteList, 'btn btn-primary',
+  (b) => {b.innerText = 'Sort by Author'})
+sortButton.addEventListener('click', () => {sortQuotes(quoteList)})
 
 renderQuotes()
